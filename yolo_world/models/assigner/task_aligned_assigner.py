@@ -86,6 +86,33 @@ class YOLOWorldSegAssigner(BatchTaskAlignedAssigner):
         (assigned_gt_idxs, fg_mask_pre_prior,
          pos_mask) = select_highest_overlaps(pos_mask, overlaps, num_gt)
 
+        # -------------------- DEBUG --------------------
+        if (not hasattr(self, "_dbg_once")):
+            self._dbg_once = True
+
+            is_rank0 = (not dist.is_available()) or (not dist.is_initialized()) or dist.get_rank() == 0
+            if is_rank0:
+                print("\n[DBG] batch_size:", batch_size, flush=True)
+                print("[DBG] num_priors:", pred_scores.shape[1], flush=True)
+                print("[DBG] num_gt:", num_gt, flush=True)
+
+                print("[DBG] fg_mask_pre_prior.sum per batch:",
+                    fg_mask_pre_prior.sum(dim=1).detach().cpu(), flush=True)
+                print("[DBG] fg_mask_pre_prior total:",
+                    int(fg_mask_pre_prior.sum().item()), flush=True)
+
+                sizes = [160*160, 80*80, 40*40, 20*20]
+                offset = 0
+                for li, n in enumerate(sizes):
+                    m = fg_mask_pre_prior[:, offset:offset+n]
+                    print(f"[DBG] level {li} pos per batch:",
+                        m.sum(dim=1).detach().cpu().tolist(),
+                        "total:", int(m.sum().item()),
+                        flush=True)
+                    offset += n
+                print("-------------------------------------------------\n", flush=True)
+        # -------------------------------------------------
+
         # assigned target
         assigned_labels, assigned_bboxes, assigned_scores = self.get_targets(
             gt_labels, gt_bboxes, assigned_gt_idxs, fg_mask_pre_prior,

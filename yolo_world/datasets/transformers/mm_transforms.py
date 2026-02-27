@@ -69,6 +69,14 @@ class RandomLoadText:
         results['gt_bboxes'] = results['gt_bboxes'][gt_valid_mask]
         results[gt_label_tag] = results[gt_label_tag][gt_valid_mask]
 
+        #caption하려고 추가한 부분
+
+        if 'gt_ignore_flags' in results:
+            results['gt_ignore_flags'] = results['gt_ignore_flags'][gt_valid_mask]
+        if 'gt_masks' in results:
+             results['gt_masks'] = results['gt_masks'][gt_valid_mask]
+        #########
+        
         if 'instances' in results:
             retaged_instances = []
             for idx, inst in enumerate(results['instances']):

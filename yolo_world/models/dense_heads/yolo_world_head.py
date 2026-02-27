@@ -361,8 +361,8 @@ class YOLOWorldHead(YOLOv8Head):
 
         outs = self(img_feats, txt_feats, txt_masks)
         # Fast version
-        loss_inputs = outs + (batch_data_samples['bboxes_labels'],
-                              batch_data_samples['img_metas'])
+        loss_inputs = outs + (txt_masks,batch_data_samples['bboxes_labels'],
+                            batch_data_samples['img_metas'])
         losses = self.loss_by_feat(*loss_inputs)
 
         return losses
